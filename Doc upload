@@ -1,0 +1,59 @@
+from flask import Flask
+from psycopg2 import sql
+from sentence_transformers import SentenceTransformer
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import create_engine
+import psycopg2
+import config
+import pandas as pd
+
+app = Flask(__name__)
+
+# Uploading file part
+#
+
+with open(filename) as f:
+    s = f.read()
+
+# Document data accepted
+# Now generating embeddings
+
+model = SentenceTransformer('sentence-transformers/msmarco-roberta-base-v2')
+
+embeddings = model.encode(s)
+
+print(embeddings)
+
+# Embeddings generated
+# Now Storing embeddings
+
+    # Review here
+app.config.from_object(config)
+db = SQLAlchemy(app)
+
+    # Creating database for embeddings and storing
+    
+def store_embeddings():
+    conn = psycopg2.connect(dbname="postgres", user=config.DB_USERNAME, password=config.DB_PASSWORD, host=config.DB_HOST,
+                            port=config.DB_PORT)
+    conn.autocommit = True
+    cursor = conn.cursor()
+    cursor.execute(sql.SQL("CREATE DATABASE {}").format(sql.Identifier(filename)))
+    cursor.close()
+    conn.close()
+    engine = create_engine(config.SQLALCHEMY_DATABASE_URI)
+    df = pd.DataFrame(embeddings)
+    df.to_sql(filename, engine, if_exists='replace', index=False)
+
+# Embeddings stored in PostgreSQL
+
+
+
+
+
+
+
+
+
+
+
