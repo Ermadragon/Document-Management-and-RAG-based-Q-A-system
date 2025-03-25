@@ -1,0 +1,61 @@
+import os
+import numpy as np
+import pandas as pd
+import psycopg2
+from sentence_transformers import SentenceTransformer, util
+from sqlalchemy import create_engine, MetaData
+import config
+from langchain_community.llms import HuggingFaceHub
+from langchain import hub
+from langchain_core.runnables import RunnablePassthrough
+
+# Accepting user question and embedding
+
+user_question = input()
+
+model = SentenceTransformer('sentence-transformers/msmarco-roberta-base-v2')
+
+user_question_embedding = model.encode(user_question)
+
+# User Question accepted
+# Now retrieving document embeddings
+
+conn = psycopg2.connect(dbname="postgres", user=config.DB_USERNAME, password=config.DB_PASSWORD, host=config.DB_HOST,
+                            port=config.DB_PORT)
+engine = create_engine(config.SQLALCHEMY_DATABASE_URI)
+metadata = MetaData()
+metadata.reflect(bind=engine)
+tables = metadata.tables.keys()
+tables = list(tables)
+
+doc_embeddings = []
+for table in tables:
+    df = pd.read_sql(table, con = engine)
+    doc_embeddings.append(df.to_numpy())
+
+embedding_scores = util.pytorch_cos_sim(user_question_embedding, doc_embeddings)[0].numpy()
+
+k = int(doc_embeddings*0.4)
+retrieved_docs = np.argsort(embedding_scores)[::-1][:k]
+
+# Relevant document embeddings retrieved using embedding retrieval
+# Now generating answers using RAG
+
+os.environ["HUGGINGFACEHUB_API_TOKEN"] = ""
+
+llm_model = HuggingFaceHub(repo_id = "Qwen/Qwen1.5-32B-Chat")
+
+context = "\n".join(retrieved_docs_content)
+
+prompt = hub.pull("rlm/rag-prompt")
+
+rag_chain = (
+    RunnablePassthrough.assign(context=context, question=user_question) 
+    | prompt
+    | llm_model
+)
+
+response = rag_chain.invoke({})
+
+# Answers generated
+
