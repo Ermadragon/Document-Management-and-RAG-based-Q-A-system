@@ -3,14 +3,19 @@ import aiofiles
 import asyncpg
 import fitz  
 import pandas as pd
+import numpy as np
 import asyncio
 from flask import Flask, request, jsonify
 from concurrent.futures import ThreadPoolExecutor
+from sqlalchemy import create_engine, MetaData
 from sqlalchemy.ext.asyncio import create_async_engine
-from sentence_transformers import SentenceTransformer
+from sentence_transformers import SentenceTransformer, util
 from langchain_community.llms import HuggingFaceHub
+from langchain import hub
+from langchain_core.runnables import RunnablePassthrough
 from werkzeug.utils import secure_filename
 from pgvector.asyncpg import register_vector
+import logging
 import Document_Q_A_Application.config as config
 from Document_Q_A_Application import app
 
@@ -19,7 +24,7 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 os.environ["HUGGINGFACEHUB_API_TOKEN"] = "api_key"
 
-model = SentenceTransformer('sentence-transformers/msmarco-roberta-base-v2')
+embedding_model = SentenceTransformer('sentence-transformers/msmarco-roberta-base-v2')
 
 llm_model = HuggingFaceHub(repo_id="Qwen/Qwen1.5-32B-Chat")
 
@@ -94,7 +99,7 @@ async def store_document_in_db(user_id, filename, content, embeddings):
         return str(e)
 
 def generate_embeddings(content):
-    return model.encode(content)
+    return embedding_model.encode(content)
 
 def extract_text(filepath):
     if filepath.lower().endswith(".pdf"):
