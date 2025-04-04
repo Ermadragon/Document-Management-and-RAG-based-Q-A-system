@@ -1,8 +1,8 @@
-Document Management and RAG-based Q&A Application
+# Document Management and RAG-based Q&A Application
 
 This is a Flask backend application which accepts documents from users and generates answers to questions through Retrieval Augmented Generation. The application uses PostgreSQL to store vector embeddings of uploaded documents. The vector embeddings are used to retrieve relevant documents through embedding similarity with the user question. Answers are generated based on the retrieved documents using LLM models such as Qwen1.5-32B-Chat.  
 
-Required libraries
+## Required libraries
 The libraries and models used in the application can be given as follows:
 1. Sentence Transformers (for embedding generation)
      Model msmarco-roberta-base-v2 was used
@@ -61,4 +61,4 @@ For .txt files
 
 Similarly API requests for the other endpoints can be given with the required data.     
 
-Note: Replace the HuggingFaceHub token and PostgreSQL login password in config.py with the required values. Moreover, pgvector extension of PostgreSQL is required for the application.
+**Note: Replace the HuggingFaceHub token and PostgreSQL login password in config.py with the required values. Moreover, pgvector extension of PostgreSQL is required for the application.**
