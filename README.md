@@ -6,7 +6,7 @@ Required libraries
 The libraries and models used in the application can be given as follows:
 1. Sentence Transformers (for embedding generation)
      Model msmarco-roberta-base-v2 was used
-2. pgvector extension of PostgreSQL is required for the application
+2. pgvector
 3. asyncpg
 4. asyncio
 5. SQLAlchemy
@@ -61,4 +61,4 @@ For .txt files
 
 Similarly API requests for the other endpoints can be given with the required data.     
 
-Note: Replace the HuggingFaceHub token and PostgreSQL login password in config.py with the required values.
+Note: Replace the HuggingFaceHub token and PostgreSQL login password in config.py with the required values. Moreover, pgvector extension of PostgreSQL is required for the application.
