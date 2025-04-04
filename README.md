@@ -61,3 +61,4 @@ For .txt files
 
 Similarly API requests for the other endpoints can be given with the required data.     
 
+Note: Replace the HuggingFaceHub token and PostgreSQL login password in config.py with the required values.
